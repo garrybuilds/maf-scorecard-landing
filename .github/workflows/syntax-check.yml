@@ -1,0 +1,11 @@
+name: Syntax Check
+on:
+  pull_request:
+    branches: [main]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate HTML
+        run: node -e "const fs=require('fs'); const html=fs.readFileSync('index.html','utf8'); if(!html.includes('<!DOCTYPE html>')) throw new Error('Missing DOCTYPE'); console.log('HTML valid')"
