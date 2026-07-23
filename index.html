@@ -3,174 +3,212 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>6-Vector Scorecard — Find Your Growth-Blocking Constraint</title>
+<title>6-Vector Scorecard — Find Your Growth-Blocking Constraint | MAF</title>
 <style>
   :root {
-    --bg: #ffffff;
-    --surface: #f9f9fb;
-    --border: #e8e8ee;
-    --text: #111118;
-    --text2: #585868;
-    --text3: #9898a8;
-    --accent: #1a1a2e;
-    --accent-hover: #2d2d4a;
-    --gold: #c8a84e;
-    --red: #d94444;
-    --green: #2ea85a;
-    --radius: 16px;
-    --radius-sm: 10px;
-    --max-w: 560px;
-    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --bg: #f7f4ee;
+    --surface: #ffffff;
+    --border: #e4ded4;
+    --text: #1c1c1c;
+    --text2: #5c5c5c;
+    --text3: #949494;
+    --accent: #c47a38;
+    --accent2: #a86228;
+    --red: #b8453a;
+    --green: #3a7d5a;
+    --radius: 6px;
+    --radius-lg: 10px;
+    --max-w: 600px;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-serif: Georgia, 'Times New Roman', serif;
   }
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    font-family: var(--font); background: var(--bg); color: var(--text);
+    font-family: var(--font-sans); background: var(--bg); color: var(--text);
     line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased;
   }
-  .container { max-width: var(--max-w); margin: 0 auto; padding: 80px 24px 80px; }
+  .container { max-width: var(--max-w); margin: 0 auto; padding: 64px 24px 80px; }
 
-  /* ── Intro ── */
-  .intro { text-align: center; margin-bottom: 56px; }
-  .intro .overline {
-    font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.12em; color: var(--gold); margin-bottom: 20px;
+  /* ── Header ── */
+  .header { text-align: center; margin-bottom: 48px; }
+  .header .brand {
+    font-family: var(--font-serif); font-size: 0.85rem; font-weight: 400;
+    color: var(--accent); letter-spacing: 0.04em; margin-bottom: 28px;
   }
-  .intro h1 {
-    font-size: 2.5rem; font-weight: 800; line-height: 1.1; letter-spacing: -0.03em;
-    margin-bottom: 16px;
+  .header h1 {
+    font-family: var(--font-serif); font-size: 2.2rem; font-weight: 400;
+    line-height: 1.2; letter-spacing: -0.01em; margin-bottom: 14px;
   }
-  .intro h1 span { color: var(--gold); }
-  .intro p { font-size: 1.1rem; color: var(--text2); max-width: 420px; margin: 0 auto; }
+  .header h1 em { font-style: italic; color: var(--accent); }
+  .header .sub {
+    font-size: 1rem; color: var(--text2); max-width: 400px; margin: 0 auto;
+    line-height: 1.55;
+  }
 
   /* ── Progress ── */
-  .progress-wrap { margin-bottom: 40px; }
-  .progress-steps { display: flex; justify-content: center; gap: 8px; margin-bottom: 12px; }
-  .progress-step {
-    width: 10px; height: 10px; border-radius: 50%; background: var(--border);
-    transition: all 0.3s ease;
+  .progress-wrap { margin-bottom: 36px; }
+  .progress-bar {
+    height: 3px; background: var(--border); border-radius: 2px;
+    overflow: hidden; margin-bottom: 10px;
   }
-  .progress-step.done { background: var(--accent); }
-  .progress-step.current { background: var(--accent); transform: scale(1.3); }
-  .progress-label { text-align: center; font-size: 0.8rem; color: var(--text3); font-weight: 500; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.3s ease; width: 0%; }
+  .progress-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text3); }
+  .progress-meta .section-name { font-weight: 600; color: var(--text2); }
 
   /* ── Question card ── */
   .q-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 48px 40px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 44px 40px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
   }
-  .q-card .section-tag {
+  .q-card .vector-badge {
     display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.1em; color: var(--gold); margin-bottom: 24px;
+    letter-spacing: 0.08em; color: var(--accent); margin-bottom: 20px;
   }
-  .q-card .q-num { font-size: 0.8rem; color: var(--text3); margin-bottom: 12px; }
+  .q-card .q-num { font-size: 0.78rem; color: var(--text3); margin-bottom: 10px; }
   .q-card .q-text {
-    font-size: 1.35rem; font-weight: 700; line-height: 1.35; margin-bottom: 12px;
-    letter-spacing: -0.01em;
+    font-size: 1.2rem; font-weight: 600; line-height: 1.4; margin-bottom: 8px;
   }
-  .q-card .q-hint { font-size: 0.85rem; color: var(--text3); font-style: italic; margin-bottom: 36px; }
-  .q-card .q-actions { display: flex; gap: 12px; justify-content: center; }
+  .q-card .q-hint { font-size: 0.82rem; color: var(--text3); font-style: italic; margin-bottom: 32px; }
+  .q-card .q-actions { display: flex; gap: 12px; }
   .q-card .q-btn {
-    padding: 16px 40px; border: 2px solid var(--border); border-radius: var(--radius-sm);
-    font-size: 1rem; font-weight: 600; cursor: pointer; font-family: var(--font);
-    background: #fff; color: var(--text); transition: all 0.15s ease;
-    min-width: 180px;
+    flex: 1; padding: 14px 20px; border: 1.5px solid var(--border); border-radius: var(--radius);
+    font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: var(--font-sans);
+    background: var(--surface); color: var(--text); transition: all 0.12s ease;
+    text-align: center;
   }
   .q-card .q-btn:hover { border-color: var(--text3); }
-  .q-card .q-btn.yes:hover { border-color: var(--green); background: rgba(46,168,90,0.04); }
-  .q-card .q-btn.no:hover { border-color: var(--red); background: rgba(217,68,68,0.04); }
+  .q-card .q-btn.yes:hover { border-color: var(--green); color: var(--green); }
+  .q-card .q-btn.no:hover { border-color: var(--red); color: var(--red); }
   .q-card .q-btn.picked-yes { background: var(--green); border-color: var(--green); color: #fff; }
   .q-card .q-btn.picked-no { background: var(--red); border-color: var(--red); color: #fff; }
 
+  /* ── Email gate ── */
+  .gate-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 48px 40px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .gate-card h2 {
+    font-family: var(--font-serif); font-size: 1.5rem; font-weight: 400;
+    margin-bottom: 8px; letter-spacing: -0.01em;
+  }
+  .gate-card .gate-sub { font-size: 0.95rem; color: var(--text2); margin-bottom: 32px; }
+  .gate-card .field {
+    text-align: left; margin-bottom: 16px;
+  }
+  .gate-card .field label {
+    display: block; font-size: 0.78rem; font-weight: 600; color: var(--text2);
+    margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .gate-card .field input {
+    width: 100%; padding: 14px 16px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); font-size: 1rem; font-family: var(--font-sans);
+    background: var(--bg); color: var(--text); transition: border-color 0.15s;
+  }
+  .gate-card .field input:focus { outline: none; border-color: var(--accent); }
+  .gate-card .gate-btn {
+    width: 100%; padding: 16px; background: var(--accent); color: #fff;
+    border: none; border-radius: var(--radius); font-size: 1rem; font-weight: 700;
+    cursor: pointer; font-family: var(--font-sans); margin-top: 8px;
+    transition: background 0.15s;
+  }
+  .gate-card .gate-btn:hover { background: var(--accent2); }
+  .gate-card .gate-note { font-size: 0.75rem; color: var(--text3); margin-top: 14px; }
+
   /* ── Results ── */
-  .result-header { text-align: center; margin-bottom: 40px; }
+  .result-header { text-align: center; margin-bottom: 36px; }
   .result-header .badge {
     display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.1em; padding: 6px 16px; border-radius: 20px; margin-bottom: 16px;
+    letter-spacing: 0.08em; padding: 5px 14px; border-radius: 20px; margin-bottom: 14px;
   }
-  .result-header .badge.critical { background: rgba(217,68,68,0.08); color: var(--red); }
-  .result-header .badge.moderate { background: rgba(200,168,78,0.1); color: var(--gold); }
-  .result-header .badge.healthy { background: rgba(46,168,90,0.08); color: var(--green); }
-  .result-header h2 { font-size: 1.8rem; font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; }
+  .result-header .badge.critical { background: rgba(184,69,58,0.08); color: var(--red); }
+  .result-header .badge.moderate { background: rgba(196,122,56,0.08); color: var(--accent); }
+  .result-header .badge.healthy { background: rgba(58,125,90,0.08); color: var(--green); }
+  .result-header h2 {
+    font-family: var(--font-serif); font-size: 1.6rem; font-weight: 400;
+    line-height: 1.2; letter-spacing: -0.01em;
+  }
 
   /* Score grid */
-  .score-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 32px; }
+  .score-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 28px; }
   .score-cell {
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
-    padding: 20px 14px; text-align: center;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px 12px; text-align: center;
   }
-  .score-cell .sc-icon { font-size: 1.3rem; margin-bottom: 6px; }
-  .score-cell .sc-name { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 10px; }
-  .score-cell .sc-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
+  .score-cell .sc-icon { font-size: 1.1rem; margin-bottom: 4px; }
+  .score-cell .sc-name { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 8px; }
+  .score-cell .sc-bar { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
   .score-cell .sc-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
   .score-cell .sc-fill.high { background: var(--red); }
-  .score-cell .sc-fill.med { background: var(--gold); }
+  .score-cell .sc-fill.med { background: var(--accent); }
   .score-cell .sc-fill.low { background: var(--green); }
-  .score-cell .sc-val { font-size: 0.9rem; font-weight: 700; }
+  .score-cell .sc-val { font-size: 0.85rem; font-weight: 700; }
   .score-cell .sc-val.high { color: var(--red); }
-  .score-cell .sc-val.med { color: var(--gold); }
+  .score-cell .sc-val.med { color: var(--accent); }
   .score-cell .sc-val.low { color: var(--green); }
-  .score-cell.binding { border-color: var(--red); border-width: 2px; background: rgba(217,68,68,0.02); }
+  .score-cell.binding { border-color: var(--red); border-width: 2px; }
 
   /* Diagnosis */
   .diag-card {
-    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 40px; margin-bottom: 20px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 36px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
   }
-  .diag-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 20px; }
-  .diag-card p { font-size: 0.95rem; color: var(--text2); line-height: 1.7; margin-bottom: 16px; }
+  .diag-card h3 {
+    font-family: var(--font-serif); font-size: 1.1rem; font-weight: 400;
+    margin-bottom: 20px; letter-spacing: -0.01em;
+  }
+  .diag-card p { font-size: 0.92rem; color: var(--text2); line-height: 1.65; margin-bottom: 14px; }
   .diag-card p:last-child { margin-bottom: 0; }
   .diag-card .callout {
-    padding: 20px 24px; border-radius: var(--radius-sm); margin: 24px 0;
-    font-size: 0.9rem; line-height: 1.6;
+    padding: 18px 22px; border-radius: var(--radius); margin: 20px 0;
+    font-size: 0.88rem; line-height: 1.6;
   }
-  .diag-card .callout.cost {
-    background: rgba(217,68,68,0.04); border-left: 3px solid var(--red);
-  }
-  .diag-card .callout.fix {
-    background: rgba(46,168,90,0.04); border-left: 3px solid var(--green);
-  }
-  .diag-card .callout strong { color: var(--text); display: block; margin-bottom: 4px; }
+  .diag-card .callout.cost { background: rgba(184,69,58,0.04); border-left: 3px solid var(--red); }
+  .diag-card .callout.fix { background: rgba(58,125,90,0.04); border-left: 3px solid var(--green); }
+  .diag-card .callout strong { display: block; margin-bottom: 3px; color: var(--text); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
 
-  /* CTA */
-  .cta-card {
-    background: var(--accent); border-radius: var(--radius);
-    padding: 40px; text-align: center; color: #fff;
+  /* Lead magnet CTA */
+  .lm-card {
+    background: var(--surface); border: 1px solid var(--accent); border-radius: var(--radius-lg);
+    padding: 32px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
   }
-  .cta-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; }
-  .cta-card p { font-size: 0.9rem; opacity: 0.8; margin-bottom: 24px; }
-  .cta-btn {
-    display: inline-block; padding: 16px 40px; background: #fff; color: var(--accent);
-    border: none; border-radius: var(--radius-sm); font-size: 1rem; font-weight: 700;
-    cursor: pointer; font-family: var(--font); text-decoration: none;
-    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  .lm-card h3 {
+    font-family: var(--font-serif); font-size: 1.1rem; font-weight: 400;
+    margin-bottom: 6px; letter-spacing: -0.01em;
   }
-  .cta-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+  .lm-card p { font-size: 0.88rem; color: var(--text2); margin-bottom: 20px; }
+  .lm-card .lm-btn {
+    display: inline-block; padding: 14px 36px; background: var(--accent); color: #fff;
+    border: none; border-radius: var(--radius); font-size: 0.95rem; font-weight: 700;
+    cursor: pointer; font-family: var(--font-sans); text-decoration: none;
+    transition: background 0.15s;
+  }
+  .lm-card .lm-btn:hover { background: var(--accent2); }
 
   /* Social proof */
   .social-proof {
-    text-align: center; margin-top: 48px; padding-top: 32px;
+    text-align: center; margin-top: 40px; padding-top: 28px;
     border-top: 1px solid var(--border);
   }
   .social-proof .quote {
-    font-size: 0.95rem; color: var(--text2); font-style: italic; max-width: 420px;
-    margin: 0 auto 12px; line-height: 1.6;
+    font-family: var(--font-serif); font-size: 0.95rem; color: var(--text2);
+    font-style: italic; max-width: 420px; margin: 0 auto 10px; line-height: 1.55;
   }
-  .social-proof .attribution { font-size: 0.8rem; color: var(--text3); font-weight: 600; }
+  .social-proof .attribution { font-size: 0.78rem; color: var(--text3); font-weight: 600; }
 
   /* Footer */
-  .footer { text-align: center; margin-top: 32px; }
-  .footer p { font-size: 0.75rem; color: var(--text3); }
+  .footer { text-align: center; margin-top: 28px; }
+  .footer p { font-size: 0.72rem; color: var(--text3); }
 
   .hidden { display: none !important; }
 
   @media (max-width: 500px) {
-    .container { padding: 48px 16px 60px; }
-    .intro h1 { font-size: 1.8rem; }
-    .q-card { padding: 36px 24px; }
-    .q-card .q-text { font-size: 1.15rem; }
-    .q-card .q-btn { min-width: 140px; padding: 14px 28px; }
+    .container { padding: 40px 16px 60px; }
+    .header h1 { font-size: 1.7rem; }
+    .q-card { padding: 32px 22px; }
+    .q-card .q-text { font-size: 1.05rem; }
+    .gate-card { padding: 36px 24px; }
     .score-grid { grid-template-columns: repeat(2, 1fr); }
-    .diag-card { padding: 28px 24px; }
+    .diag-card { padding: 28px 22px; }
   }
 </style>
 </head>
@@ -178,19 +216,22 @@
 
 <!-- ── QUIZ ── -->
 <div class="container" id="quiz-view">
-  <div class="intro">
-    <div class="overline">Self-Diagnostic Tool</div>
-    <h1>Find Your <span>Growth-Blocking</span> Constraint</h1>
-    <p>24 questions. 10 minutes. Built from 400+ service business audits. Find the one thing holding your revenue back.</p>
+  <div class="header">
+    <div class="brand">Malwa Asset Firm</div>
+    <h1>What's <em>actually</em> blocking your growth?</h1>
+    <p class="sub">24 questions. 10 minutes. Built from 400+ service business diagnostics. Find the one constraint holding your revenue back — and what to do about it.</p>
   </div>
 
   <div class="progress-wrap">
-    <div class="progress-steps" id="progress-steps"></div>
-    <div class="progress-label" id="progress-label">Question 1 of 24</div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-meta">
+      <span id="progress-num">1 of 24</span>
+      <span class="section-name" id="section-name"></span>
+    </div>
   </div>
 
   <div class="q-card" id="q-card">
-    <div class="section-tag" id="section-tag"></div>
+    <div class="vector-badge" id="vector-badge"></div>
     <div class="q-num" id="q-num"></div>
     <div class="q-text" id="q-text"></div>
     <div class="q-hint" id="q-hint"></div>
@@ -201,21 +242,46 @@
   </div>
 </div>
 
+<!-- ── EMAIL GATE ── -->
+<div class="container hidden" id="gate-view">
+  <div class="header">
+    <div class="brand">Malwa Asset Firm</div>
+    <h1>Your results are ready</h1>
+    <p class="sub">Enter your email to see your binding constraint and get a free deep-dive guide on how to fix it.</p>
+  </div>
+
+  <div class="gate-card">
+    <div class="field">
+      <label for="firstname">First name</label>
+      <input type="text" id="firstname" required autocomplete="given-name" placeholder="Your first name">
+    </div>
+    <div class="field">
+      <label for="email">Work email</label>
+      <input type="email" id="email" required autocomplete="email" placeholder="you@company.com">
+    </div>
+    <button class="gate-btn" onclick="submitGate()">See My Results</button>
+    <p class="gate-note">No spam. Your results and guide arrive instantly.</p>
+  </div>
+</div>
+
 <!-- ── RESULTS ── -->
 <div class="container hidden" id="results-view">
+  <div class="header">
+    <div class="brand">Malwa Asset Firm</div>
+  </div>
   <div class="result-header" id="result-header"></div>
   <div class="score-grid" id="score-grid"></div>
   <div class="diag-card" id="diag-card"></div>
-  <div class="cta-card">
-    <h3>Want me to run this on your business?</h3>
-    <p>A Growth Blocker Analysis takes 30 minutes. I pressure-test your scores against what I've seen at 400+ service businesses and tell you exactly what to fix first.</p>
-    <a href="https://cal.com/malwa-asset-firm/growth-blocker-analysis" class="cta-btn">Book a Growth Blocker Analysis →</a>
+  <div class="lm-card">
+    <h3>Get the full breakdown</h3>
+    <p>We put together a free guide on fixing this exact constraint — how it shows up across HVAC, plumbing, and electrical, the most common mistakes, and a step-by-step fix.</p>
+    <a href="https://cal.com/malwa-asset-firm/growth-blocker-analysis" class="lm-btn">Get the Free Guide →</a>
   </div>
   <div class="social-proof">
     <p class="quote">"We were stuck at $2.8M for three years. The scorecard showed us our conversion was the problem, not our marketing. Fixed the follow-up process and hit $4.1M in 14 months."</p>
     <p class="attribution">— HVAC owner, New Jersey</p>
   </div>
-  <div class="footer"><p>MAF Deploy</p></div>
+  <div class="footer"><p>Malwa Asset Firm</p></div>
 </div>
 
 <script>
@@ -312,23 +378,18 @@ let scores = vectors.map(() => 0);
 // ── Progress ──
 function renderProgress() {
   const total = 24, done = cv * 4 + cq;
-  const steps = document.getElementById('progress-steps');
-  steps.innerHTML = '';
-  for (let i = 0; i < total; i++) {
-    const dot = document.createElement('div');
-    dot.className = 'progress-step';
-    if (i < done) dot.classList.add('done');
-    if (i === done) dot.classList.add('current');
-    steps.appendChild(dot);
+  document.getElementById('progress-fill').style.width = `${(done/total)*100}%`;
+  document.getElementById('progress-num').textContent = `${done + 1} of 24`;
+  if (cv < vectors.length) {
+    document.getElementById('section-name').textContent = vectors[cv].title;
   }
-  document.getElementById('progress-label').textContent = `Question ${done + 1} of 24`;
 }
 
 // ── Render question ──
 function renderQuestion() {
-  if (cv >= vectors.length) { showResults(); return; }
+  if (cv >= vectors.length) { showGate(); return; }
   const v = vectors[cv], q = v.questions[cq];
-  document.getElementById('section-tag').textContent = `${v.icon} ${v.label}`;
+  document.getElementById('vector-badge').textContent = `${v.icon} ${v.label}`;
   document.getElementById('q-num').textContent = `Question ${cv * 4 + cq + 1} of 24`;
   document.getElementById('q-text').textContent = q.q;
   document.getElementById('q-hint').textContent = q.h;
@@ -348,14 +409,27 @@ function answer(val) {
   renderQuestion();
 }
 
-// ── Results ──
-function showResults() {
+// ── Gate ──
+function showGate() {
   scores = vectors.map((v, i) => Math.min(answers[i].filter(a => a === false).length, 3));
   document.getElementById('quiz-view').classList.add('hidden');
+  document.getElementById('gate-view').classList.remove('hidden');
+}
+
+function submitGate() {
+  const name = document.getElementById('firstname').value.trim();
+  const email = document.getElementById('email').value.trim();
+  if (!name || !email) return;
+
+  // Log capture
+  console.log('Lead:', { name, email, scores, constraint: getBinding().id });
+
+  document.getElementById('gate-view').classList.add('hidden');
   document.getElementById('results-view').classList.remove('hidden');
   renderResults();
 }
 
+// ── Results ──
 function getBinding() {
   let mx = -1, mi = 0;
   scores.forEach((s, i) => { if (s > mx) { mx = s; mi = i; } });
