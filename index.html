@@ -427,12 +427,24 @@ function submitGate() {
   const email = document.getElementById('email').value.trim();
   if (!name || !email) return;
 
-  // Log capture
-  console.log('Lead:', { name, email, scores, constraint: getBinding().id });
+  const b = getBinding();
 
+  // Show results immediately (don't wait for API)
   document.getElementById('gate-view').classList.add('hidden');
   document.getElementById('results-view').classList.remove('hidden');
   renderResults();
+
+  // Fire-and-forget: store lead + send playbook
+  fetch('/api/send-playbook', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: name,
+      email: email,
+      constraint_id: b.id,
+      scores: scores
+    })
+  }).catch(e => console.log('API call failed:', e));
 }
 
 // ── Results ──
