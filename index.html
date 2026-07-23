@@ -6,400 +6,398 @@
 <title>6-Vector Scorecard — Find Your Growth-Blocking Constraint</title>
 <style>
   :root {
-    --bg: #0a0a0a; --surface: #141414; --border: #2a2a2a;
-    --text: #e0e0e0; --text-muted: #888; --accent: #f0b90b;
-    --accent-hover: #d4a30a; --danger: #e74c3c; --success: #27ae60;
-    --radius: 8px; --max-w: 640px;
+    --bg: #08080c;
+    --surface: #111118;
+    --surface2: #181820;
+    --border: #222230;
+    --text: #e8e8ed;
+    --text2: #9898a8;
+    --text3: #686878;
+    --accent: #f5c842;
+    --accent2: #d4a820;
+    --red: #e05555;
+    --green: #3cb878;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --max-w: 600px;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
   [data-theme="light"] {
-    --bg: #fafafa; --surface: #fff; --border: #e0e0e0;
-    --text: #1a1a1a; --text-muted: #666;
+    --bg: #f5f5f8; --surface: #ffffff; --surface2: #f0f0f5;
+    --border: #e0e0e8; --text: #181820; --text2: #686878; --text3: #9898a8;
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh;
+    font-family: var(--font); background: var(--bg); color: var(--text);
+    line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased;
   }
-  .container { max-width: var(--max-w); margin: 0 auto; padding: 48px 24px; }
-  h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 8px; letter-spacing: -0.02em; }
-  h2 { font-size: 1.1rem; font-weight: 400; color: var(--text-muted); margin-bottom: 32px; }
-  h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 12px; }
-  .card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 28px; margin-bottom: 20px;
+  .container { max-width: var(--max-w); margin: 0 auto; padding: 60px 24px 80px; }
+
+  /* ── Intro ── */
+  .intro { text-align: center; margin-bottom: 48px; }
+  .intro .badge {
+    display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--accent); background: rgba(245,200,66,0.08);
+    padding: 6px 14px; border-radius: 20px; margin-bottom: 20px;
   }
-  .progress { display: flex; gap: 4px; margin-bottom: 24px; }
-  .progress-dot { flex: 1; height: 4px; background: var(--border); border-radius: 2px; transition: background 0.3s; }
-  .progress-dot.done { background: var(--accent); }
-  .progress-dot.current { background: var(--accent); opacity: 0.5; }
-  .vector-label { font-size: 0.85rem; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
-  .question-text { font-size: 1.05rem; margin-bottom: 16px; font-weight: 500; }
-  .benchmark { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px; font-style: italic; }
-  .btn-group { display: flex; gap: 12px; }
-  .btn {
-    flex: 1; padding: 14px 24px; border: 1px solid var(--border); border-radius: var(--radius);
-    font-size: 1rem; font-weight: 600; cursor: pointer; font-family: inherit;
-    background: var(--surface); color: var(--text); transition: all 0.2s;
+  .intro h1 { font-size: 2.25rem; font-weight: 800; line-height: 1.15; letter-spacing: -0.03em; margin-bottom: 12px; }
+  .intro p { font-size: 1.05rem; color: var(--text2); max-width: 440px; margin: 0 auto; }
+
+  /* ── Progress ── */
+  .progress-wrap { margin-bottom: 32px; }
+  .progress-bar {
+    display: flex; gap: 3px; height: 4px; border-radius: 2px; overflow: hidden;
+    background: var(--border); margin-bottom: 8px;
   }
-  .btn:hover { border-color: var(--accent); }
-  .btn.selected-yes { background: var(--success); border-color: var(--success); color: #fff; }
-  .btn.selected-no { background: var(--danger); border-color: var(--danger); color: #fff; }
-  .btn-primary {
-    width: 100%; padding: 14px 24px; background: var(--accent); color: #0a0a0a;
-    border: none; border-radius: var(--radius); font-size: 1rem; font-weight: 600;
-    cursor: pointer; font-family: inherit; margin-top: 16px;
+  .progress-seg { flex: 1; transition: background 0.3s ease; }
+  .progress-seg.done { background: var(--accent); }
+  .progress-seg.current { background: var(--accent); opacity: 0.4; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text3); }
+  .progress-label span { font-weight: 600; color: var(--text2); }
+
+  /* ── Question card ── */
+  .q-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 36px 32px; transition: opacity 0.2s ease, transform 0.2s ease;
   }
-  .btn-primary:hover { background: var(--accent-hover); }
-  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-  .form-group { margin-bottom: 16px; }
-  .form-group label { display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 6px; }
-  .form-group input {
-    width: 100%; padding: 12px 16px; background: var(--bg); border: 1px solid var(--border);
-    border-radius: var(--radius); color: var(--text); font-size: 1rem; font-family: inherit;
+  .q-card .section-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--accent); margin-bottom: 20px;
   }
-  .form-group input:focus { outline: none; border-color: var(--accent); }
-  .privacy { font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: 12px; }
-  .result-header { text-align: center; margin-bottom: 24px; }
-  .result-vector { font-size: 0.85rem; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-  .result-title { font-size: 1.5rem; font-weight: 700; margin: 8px 0; }
-  .score-bar { display: flex; gap: 8px; margin: 16px 0; }
-  .score-item { flex: 1; text-align: center; }
-  .score-fill { height: 8px; background: var(--border); border-radius: 4px; margin-bottom: 4px; overflow: hidden; }
-  .score-fill-inner { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
-  .score-fill-inner.high { background: var(--danger); }
-  .score-fill-inner.medium { background: var(--accent); }
-  .score-fill-inner.low { background: var(--success); }
-  .score-label { font-size: 0.7rem; color: var(--text-muted); }
-  .score-value { font-size: 0.85rem; font-weight: 600; }
-  .insight { background: rgba(240,185,11,0.08); border-left: 3px solid var(--accent); padding: 16px; border-radius: 0 var(--radius) var(--radius) 0; margin: 16px 0; }
-  .insight p { font-size: 0.95rem; }
-  .footer { text-align: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--text-muted); }
-  .footer a { color: var(--accent); text-decoration: none; }
-  .theme-toggle {
-    position: fixed; top: 16px; right: 16px; background: var(--surface);
-    border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px;
-    cursor: pointer; font-size: 0.85rem; color: var(--text); font-family: inherit;
+  .q-card .section-tag .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
   }
+  .q-card .q-num { font-size: 0.8rem; color: var(--text3); margin-bottom: 8px; }
+  .q-card .q-text { font-size: 1.15rem; font-weight: 600; line-height: 1.45; margin-bottom: 8px; }
+  .q-card .q-hint { font-size: 0.82rem; color: var(--text3); font-style: italic; margin-bottom: 28px; }
+  .q-card .q-actions { display: flex; gap: 12px; }
+  .q-card .q-btn {
+    flex: 1; padding: 14px 20px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-size: 0.95rem; font-weight: 600; cursor: pointer; font-family: var(--font);
+    background: var(--surface2); color: var(--text); transition: all 0.15s ease;
+    text-align: center;
+  }
+  .q-card .q-btn:hover { border-color: var(--text3); }
+  .q-card .q-btn.yes:hover { border-color: var(--green); color: var(--green); }
+  .q-card .q-btn.no:hover { border-color: var(--red); color: var(--red); }
+  .q-card .q-btn.picked-yes { background: var(--green); border-color: var(--green); color: #fff; }
+  .q-card .q-btn.picked-no { background: var(--red); border-color: var(--red); color: #fff; }
+
+  /* ── Results ── */
+  .result-header { text-align: center; margin-bottom: 36px; }
+  .result-header .badge {
+    display: inline-block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; padding: 6px 14px; border-radius: 20px; margin-bottom: 16px;
+  }
+  .result-header .badge.critical { background: rgba(224,85,85,0.12); color: var(--red); }
+  .result-header .badge.moderate { background: rgba(245,200,66,0.12); color: var(--accent); }
+  .result-header .badge.healthy { background: rgba(60,184,120,0.12); color: var(--green); }
+  .result-header h2 { font-size: 1.6rem; font-weight: 800; line-height: 1.2; letter-spacing: -0.02em; }
+
+  /* Score grid */
+  .score-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 28px; }
+  .score-cell {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 16px 12px; text-align: center;
+  }
+  .score-cell .sc-icon { font-size: 1.2rem; margin-bottom: 4px; }
+  .score-cell .sc-name { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text3); margin-bottom: 6px; }
+  .score-cell .sc-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
+  .score-cell .sc-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+  .score-cell .sc-fill.high { background: var(--red); }
+  .score-cell .sc-fill.med { background: var(--accent); }
+  .score-cell .sc-fill.low { background: var(--green); }
+  .score-cell .sc-val { font-size: 0.85rem; font-weight: 700; }
+  .score-cell .sc-val.high { color: var(--red); }
+  .score-cell .sc-val.med { color: var(--accent); }
+  .score-cell .sc-val.low { color: var(--green); }
+  .score-cell.binding { border-color: var(--red); background: rgba(224,85,85,0.04); }
+
+  /* Diagnosis */
+  .diag-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 32px; margin-bottom: 20px;
+  }
+  .diag-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; }
+  .diag-card p { font-size: 0.95rem; color: var(--text2); line-height: 1.65; margin-bottom: 16px; }
+  .diag-card p:last-child { margin-bottom: 0; }
+  .diag-card .cost-box {
+    background: rgba(224,85,85,0.06); border-left: 3px solid var(--red);
+    padding: 16px 20px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin: 20px 0;
+  }
+  .diag-card .cost-box strong { color: var(--text); }
+  .diag-card .fix-box {
+    background: rgba(60,184,120,0.06); border-left: 3px solid var(--green);
+    padding: 16px 20px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin: 20px 0;
+  }
+  .diag-card .fix-box strong { color: var(--text); }
+
+  /* CTA */
+  .cta-card {
+    background: linear-gradient(135deg, rgba(245,200,66,0.08), rgba(212,168,32,0.04));
+    border: 1px solid rgba(245,200,66,0.2); border-radius: var(--radius);
+    padding: 32px; text-align: center;
+  }
+  .cta-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; }
+  .cta-card p { font-size: 0.9rem; color: var(--text2); margin-bottom: 20px; }
+  .cta-btn {
+    display: inline-block; padding: 14px 36px; background: var(--accent); color: #0a0a0a;
+    border: none; border-radius: var(--radius-sm); font-size: 1rem; font-weight: 700;
+    cursor: pointer; font-family: var(--font); text-decoration: none;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  .cta-btn:hover { background: var(--accent2); transform: translateY(-1px); }
+
+  /* Footer */
+  .footer { text-align: center; margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); }
+  .footer p { font-size: 0.8rem; color: var(--text3); }
+
+  /* Theme toggle */
+  .theme-btn {
+    position: fixed; top: 16px; right: 16px; z-index: 10;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 1rem; color: var(--text2); transition: border-color 0.15s;
+  }
+  .theme-btn:hover { border-color: var(--text3); }
+
   .hidden { display: none !important; }
-  .q-counter { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px; }
+
   @media (max-width: 500px) {
-    .container { padding: 24px 16px; }
-    h1 { font-size: 1.6rem; }
-    .score-bar { flex-wrap: wrap; }
-    .score-item { flex: 0 0 30%; }
+    .container { padding: 40px 16px 60px; }
+    .intro h1 { font-size: 1.7rem; }
+    .q-card { padding: 28px 20px; }
+    .q-card .q-text { font-size: 1.05rem; }
+    .score-grid { grid-template-columns: repeat(2, 1fr); }
+    .diag-card { padding: 24px 20px; }
   }
 </style>
 </head>
 <body>
-<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">☀️</button>
+<button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme" id="theme-btn">☀️</button>
 
-<div class="container" id="quiz-container">
-  <h1>6-Vector Scorecard</h1>
-  <h2>24 questions. 10 minutes. Find the one thing blocking your growth.</h2>
+<!-- ── QUIZ ── -->
+<div class="container" id="quiz-view">
+  <div class="intro">
+    <div class="badge">Self-Diagnostic Tool</div>
+    <h1>6-Vector Scorecard</h1>
+    <p>24 questions. 10 minutes. Find the one constraint blocking your service business from growing.</p>
+  </div>
 
-  <div class="progress" id="progress-bar"></div>
+  <div class="progress-wrap">
+    <div class="progress-bar" id="progress-bar"></div>
+    <div class="progress-label"><span id="progress-text">1 of 24</span><span id="section-label"></span></div>
+  </div>
 
-  <div class="card" id="question-card">
-    <div class="q-counter" id="q-counter"></div>
-    <div class="vector-label" id="vector-label"></div>
-    <div class="question-text" id="question-text"></div>
-    <div class="benchmark" id="benchmark"></div>
-    <div class="btn-group">
-      <button class="btn" id="btn-yes" onclick="answer(true)">Yes</button>
-      <button class="btn" id="btn-no" onclick="answer(false)">No</button>
+  <div class="q-card" id="q-card">
+    <div class="section-tag"><span class="dot"></span><span id="section-tag-text"></span></div>
+    <div class="q-num" id="q-num"></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="q-hint" id="q-hint"></div>
+    <div class="q-actions">
+      <button class="q-btn yes" id="btn-yes" onclick="answer(true)">Yes, we do this</button>
+      <button class="q-btn no" id="btn-no" onclick="answer(false)">No, we don't</button>
     </div>
   </div>
 </div>
 
-<div class="container hidden" id="email-gate">
-  <h1>Your results are ready</h1>
-  <h2>Enter your email to see your binding constraint and what to do about it.</h2>
-  <div class="card">
-    <div class="form-group">
-      <label for="firstname">First name</label>
-      <input type="text" id="firstname" required autocomplete="given-name" placeholder="Your first name">
-    </div>
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input type="email" id="email" required autocomplete="email" placeholder="you@company.com">
-    </div>
-    <button class="btn-primary" onclick="showResults()">See My Results</button>
-    <p class="privacy">No spam. Unsubscribe anytime.</p>
-  </div>
-</div>
-
-<div class="container hidden" id="results-container">
-  <div class="result-header">
-    <div class="result-vector" id="result-vector-label"></div>
-    <div class="result-title" id="result-title"></div>
-  </div>
-
-  <div class="card">
-    <h3>Your Scores</h3>
-    <div class="score-bar" id="score-bar"></div>
-  </div>
-
-  <div class="card" id="result-diagnosis"></div>
-
-  <div class="card" style="text-align:center;">
+<!-- ── RESULTS ── -->
+<div class="container hidden" id="results-view">
+  <div class="result-header" id="result-header"></div>
+  <div class="score-grid" id="score-grid"></div>
+  <div class="diag-card" id="diag-card"></div>
+  <div class="cta-card">
     <h3>Want me to run this on your business?</h3>
-    <p style="color:var(--text-muted);margin-bottom:16px;">A Growth Blocker Analysis takes 30 minutes. I pressure-test your scores against what I've seen at 400+ service businesses and tell you exactly what to fix first.</p>
-    <a href="https://cal.com/malwa-asset-firm/growth-blocker-analysis" class="btn-primary" style="display:inline-block;width:auto;padding:14px 32px;text-decoration:none;">Book a Growth Blocker Analysis →</a>
+    <p>A Growth Blocker Analysis takes 30 minutes. I pressure-test your scores against what I've seen at 400+ service businesses and tell you exactly what to fix first. No pitch. No deck.</p>
+    <a href="https://cal.com/malwa-asset-firm/growth-blocker-analysis" class="cta-btn">Book a Growth Blocker Analysis →</a>
   </div>
-
-  <div class="footer">
-    <p>MAF Deploy</p>
-  </div>
+  <div class="footer"><p>MAF Deploy</p></div>
 </div>
 
 <script>
-// ── Questions ──
+// ── Data ──
 const vectors = [
-  {
-    id: 'demand', label: 'Demand', emoji: '📢',
-    title: 'Are You Generating Enough Qualified Leads?',
-    questions: [
-      { q: 'Do you receive at least 40 leads/month ($1–3M) or 100+/month ($3–10M) or 300+/month ($10–25M)?', b: 'Industry benchmark: 40–300+ leads/month depending on revenue band' },
-      { q: 'Does any single lead source account for less than 60% of your total leads?', b: 'Concentration risk: if one source is >60%, a channel break kills your pipeline' },
-      { q: 'Do you spend at least 3% of revenue on marketing (minimum $500/month)?', b: 'Industry benchmark: 3%+ of revenue. At $3M revenue, that\'s $7,500/month' },
-      { q: 'Is your blended cost per lead under $150?', b: 'HVAC avg: $104, Plumbing: $72–167, Electrical: $94' }
-    ]
-  },
-  {
-    id: 'conversion', label: 'Conversion', emoji: '🔄',
-    title: 'Do Leads Turn Into Booked Jobs?',
-    questions: [
-      { q: 'Is your estimate-to-job close rate above 30%?', b: 'HVAC: 30–42%, Plumbing: 41.5%, Electrical: 43.4%' },
-      { q: 'Do you respond to new leads in under 5 minutes?', b: 'Industry average is 14+ hours. Leads contacted within 5 min are 21× more likely to qualify' },
-      { q: 'Do you follow up on at least 50% of unsold estimates?', b: 'Top contractors generate 11–15% of revenue from unsold estimate follow-up' },
-      { q: 'Do you contact at least 50% of phone leads?', b: 'Industry average: only 27–31% of phone leads are contacted. Top performers: 80%+' }
-    ]
-  },
-  {
-    id: 'delivery', label: 'Delivery', emoji: '🚛',
-    title: 'Can You Fulfill Efficiently at Current Volume?',
-    questions: [
-      { q: 'Do you use a digital scheduling system (not whiteboard, paper, or memory)?', b: 'Digital scheduling reduces missed appointments by 30–40%' },
-      { q: 'Is your first-time fix rate above 70%?', b: 'Industry average: 63–70%, top performers: 87%' },
-      { q: 'Is your revenue per truck at least $200K?', b: 'Residential HVAC median: $310K, top: $480K+. Below $200K = ghost truck problem' },
-      { q: 'Does the owner spend fewer than 20 hours/week on scheduling, dispatch, and invoicing?', b: 'Owner time on operations = can\'t work on growth' }
-    ]
-  },
-  {
-    id: 'cashflow', label: 'Cash Flow', emoji: '💰',
-    title: 'Are You Collecting What You Earn?',
-    questions: [
-      { q: 'Is your Days Sales Outstanding (DSO) under 45 days for residential?', b: 'Every 10-day DSO reduction frees ~$27,000 per $1M in revenue' },
-      { q: 'Is at least 75% of your accounts receivable current (0–30 days)?', b: 'Healthy: 80%+. Below 75% = collection problem' },
-      { q: 'Do you send invoices within 7 days of job completion using electronic invoicing?', b: 'Electronic invoicing alone reduces DSO by 6–10 days' },
-      { q: 'Is your bad debt write-off rate under 3% of revenue?', b: 'Healthy: 0.5–2%. Above 3% = systemic collection failure' }
-    ]
-  },
-  {
-    id: 'retention', label: 'Retention', emoji: '🔁',
-    title: 'Do Customers Come Back?',
-    questions: [
-      { q: 'Is your repeat customer rate above 35%?', b: 'HVAC: 42%, Plumbing: 34%, Electrical: 29%. 52% of non-returns are communication failures, not quality' },
-      { q: 'Are at least 20% of customers on a maintenance plan?', b: 'Plan members retain at 74–89% vs 29–42% without. 2.3× higher lifetime value' },
-      { q: 'Do you have 10+ online reviews and a rating above 4.0 stars?', b: '42% of consumers won\'t use a business that never replies to reviews' },
-      { q: 'Do you have a systematic process for requesting reviews after job completion?', b: 'Contractors who ask: 10–20% review rate. Contractors who don\'t: <5%' }
-    ]
-  },
-  {
-    id: 'support', label: 'Support', emoji: '🛡️',
-    title: 'Are Customer Issues Handled Without Bottlenecking the Owner?',
-    questions: [
-      { q: 'Do you have a system to track customer issues/tickets (CRM, helpdesk, or logged system)?', b: 'No ticket system = issues fall through cracks = lost customers' },
-      { q: 'Is your first-call resolution rate above 70%?', b: 'Industry average: 70%, world-class: 80%+' },
-      { q: 'Do customer issues get a response within 4 hours?', b: '87% of consumers expect a response within 2 weeks. 4 hours is the gold standard' },
-      { q: 'Does your business have a tiered escalation process (not every issue goes to the owner)?', b: 'Owner as bottleneck = can\'t scale past $3M' }
-    ]
-  }
+  { id:'demand', icon:'📢', label:'Demand', title:'Are You Generating Enough Qualified Leads?', questions:[
+    { q:'Do you receive at least 40 leads/month ($1–3M), 100+/month ($3–10M), or 300+/month ($10–25M)?', h:'Industry benchmark: 40–300+ leads/month depending on revenue band' },
+    { q:'Does any single lead source account for less than 60% of your total leads?', h:'Concentration risk: if one source is >60%, a channel break kills your pipeline' },
+    { q:'Do you spend at least 3% of revenue on marketing (minimum $500/month)?', h:'Industry benchmark: 3%+ of revenue. At $3M, that\'s $7,500/month' },
+    { q:'Is your blended cost per lead under $150?', h:'HVAC avg: $104, Plumbing: $72–167, Electrical: $94' }
+  ]},
+  { id:'conversion', icon:'🔄', label:'Conversion', title:'Do Leads Turn Into Booked Jobs?', questions:[
+    { q:'Is your estimate-to-job close rate above 30%?', h:'HVAC: 30–42%, Plumbing: 41.5%, Electrical: 43.4%' },
+    { q:'Do you respond to new leads in under 5 minutes?', h:'Industry average is 14+ hours. Leads contacted within 5 min are 21× more likely to qualify' },
+    { q:'Do you follow up on at least 50% of unsold estimates?', h:'Top contractors generate 11–15% of revenue from unsold estimate follow-up' },
+    { q:'Do you contact at least 50% of phone leads?', h:'Industry average: only 27–31% contacted. Top performers: 80%+' }
+  ]},
+  { id:'delivery', icon:'🚛', label:'Delivery', title:'Can You Fulfill Efficiently at Current Volume?', questions:[
+    { q:'Do you use a digital scheduling system (not whiteboard, paper, or memory)?', h:'Digital scheduling reduces missed appointments by 30–40%' },
+    { q:'Is your first-time fix rate above 70%?', h:'Industry average: 63–70%, top performers: 87%' },
+    { q:'Is your revenue per truck at least $200K?', h:'Residential HVAC median: $310K, top: $480K+. Below $200K = ghost truck problem' },
+    { q:'Does the owner spend fewer than 20 hours/week on scheduling, dispatch, and invoicing?', h:'Owner time on operations = can\'t work on growth' }
+  ]},
+  { id:'cashflow', icon:'💰', label:'Cash Flow', title:'Are You Collecting What You Earn?', questions:[
+    { q:'Is your Days Sales Outstanding (DSO) under 45 days for residential?', h:'Every 10-day DSO reduction frees ~$27,000 per $1M in revenue' },
+    { q:'Is at least 75% of your accounts receivable current (0–30 days)?', h:'Healthy: 80%+. Below 75% = collection problem' },
+    { q:'Do you send invoices within 7 days of job completion using electronic invoicing?', h:'Electronic invoicing alone reduces DSO by 6–10 days' },
+    { q:'Is your bad debt write-off rate under 3% of revenue?', h:'Healthy: 0.5–2%. Above 3% = systemic collection failure' }
+  ]},
+  { id:'retention', icon:'🔁', label:'Retention', title:'Do Customers Come Back?', questions:[
+    { q:'Is your repeat customer rate above 35%?', h:'HVAC: 42%, Plumbing: 34%, Electrical: 29%. 52% of non-returns are communication failures' },
+    { q:'Are at least 20% of customers on a maintenance plan?', h:'Plan members retain at 74–89% vs 29–42% without. 2.3× higher lifetime value' },
+    { q:'Do you have 10+ online reviews and a rating above 4.0 stars?', h:'42% of consumers won\'t use a business that never replies to reviews' },
+    { q:'Do you have a systematic process for requesting reviews after job completion?', h:'Contractors who ask: 10–20% review rate. Contractors who don\'t: <5%' }
+  ]},
+  { id:'support', icon:'🛡️', label:'Support', title:'Are Customer Issues Handled Without Bottlenecking the Owner?', questions:[
+    { q:'Do you have a system to track customer issues/tickets (CRM, helpdesk, or logged system)?', h:'No ticket system = issues fall through cracks = lost customers' },
+    { q:'Is your first-call resolution rate above 70%?', h:'Industry average: 70%, world-class: 80%+' },
+    { q:'Do customer issues get a response within 4 hours?', h:'87% of consumers expect a response within 2 weeks. 4 hours is the gold standard' },
+    { q:'Does your business have a tiered escalation process (not every issue goes to the owner)?', h:'Owner as bottleneck = can\'t scale past $3M' }
+  ]}
 ];
 
 const diagnoses = {
   demand: {
-    title: 'Your Binding Constraint: Demand',
-    body: `<p>You don't have enough qualified leads to fill capacity. No amount of sales training or operational efficiency fixes this — you need more leads before anything else matters.</p>
-<div class="insight"><p><strong>What this costs you:</strong> Every empty truck slot is lost revenue. At $310K revenue/truck (HVAC median), a 5-truck fleet running at 70% capacity is leaving ~$465K/year on the table.</p></div>
-<p><strong>What to fix first:</strong> Diversify lead sources. If 60%+ comes from one channel, you're one algorithm change away from a revenue cliff. Build a second channel — Google LSA ($25–90/lead), SEO (12–18 month ramp, zero marginal cost at maturity), or referral systemization.</p>
+    title:'Your Binding Constraint: Demand',
+    body:`<p>You don't have enough qualified leads to fill capacity. No amount of sales training or operational efficiency fixes this — you need more leads before anything else matters.</p>
+<div class="cost-box"><strong>What this costs you:</strong> Every empty truck slot is lost revenue. At $310K revenue/truck (HVAC median), a 5-truck fleet running at 70% capacity is leaving ~$465K/year on the table.</div>
+<div class="fix-box"><strong>What to fix first:</strong> Diversify lead sources. If 60%+ comes from one channel, you're one algorithm change away from a revenue cliff. Build a second channel — Google LSA ($25–90/lead), SEO (12–18 month ramp, zero marginal cost at maturity), or referral systemization.</div>
 <p><strong>Quick win:</strong> Claim and optimize your Google Business Profile. It's free, it's the first thing prospects see, and businesses with complete profiles get 7× more clicks.</p>`
   },
   conversion: {
-    title: 'Your Binding Constraint: Conversion',
-    body: `<p>Leads come in but don't convert. You're losing revenue between inquiry and close — and you're paying to generate leads that die on the vine.</p>
-<div class="insight"><p><strong>What this costs you:</strong> A 10-point close rate improvement (30% → 40%) on 200 leads/month at $5,000 average job = $100,000/month in new revenue. Zero increase in lead spend.</p></div>
-<p><strong>What to fix first:</strong> Speed-to-lead. If your average response time is 14 hours (the industry average), you're losing most leads before you talk to them. Leads contacted within 5 minutes are 21× more likely to qualify. Automate the first response.</p>
+    title:'Your Binding Constraint: Conversion',
+    body:`<p>Leads come in but don't convert. You're losing revenue between inquiry and close — and you're paying to generate leads that die on the vine.</p>
+<div class="cost-box"><strong>What this costs you:</strong> A 10-point close rate improvement (30% → 40%) on 200 leads/month at $5,000 average job = $100,000/month in new revenue. Zero increase in lead spend.</div>
+<div class="fix-box"><strong>What to fix first:</strong> Speed-to-lead. If your average response time is 14 hours (the industry average), you're losing most leads before you talk to them. Leads contacted within 5 minutes are 21× more likely to qualify. Automate the first response.</div>
 <p><strong>Quick win:</strong> Set up auto-responders for web forms and phone calls. Even a "We got your message, someone will call within 5 minutes" text doubles your contact rate.</p>`
   },
   delivery: {
-    title: 'Your Binding Constraint: Delivery',
-    body: `<p>You have jobs but can't fulfill them without chaos. Things fall through cracks. The owner is buried in scheduling and dispatch. This is the "ghost truck" problem — trucks generating $130–160K when they should be at $310K+.</p>
-<div class="insight"><p><strong>What this costs you:</strong> A 5-truck fleet at $160K/truck vs $310K/truck = $750K/year in unrealized revenue. Same trucks, same techs, same hours — just worse systems.</p></div>
-<p><strong>What to fix first:</strong> Digital scheduling. If you're still using a whiteboard or the owner's memory, every job has a 30–40% higher chance of a scheduling error. Move to a digital system (ServiceTitan, Housecall Pro, Jobber) — the ROI is immediate.</p>
+    title:'Your Binding Constraint: Delivery',
+    body:`<p>You have jobs but can't fulfill them without chaos. Things fall through cracks. The owner is buried in scheduling and dispatch. This is the "ghost truck" problem — trucks generating $130–160K when they should be at $310K+.</p>
+<div class="cost-box"><strong>What this costs you:</strong> A 5-truck fleet at $160K/truck vs $310K/truck = $750K/year in unrealized revenue. Same trucks, same techs, same hours — just worse systems.</div>
+<div class="fix-box"><strong>What to fix first:</strong> Digital scheduling. If you're still using a whiteboard or the owner's memory, every job has a 30–40% higher chance of a scheduling error. Move to a digital system (ServiceTitan, Housecall Pro, Jobber) — the ROI is immediate.</div>
 <p><strong>Quick win:</strong> Track first-time fix rate for one week. If it's below 70%, your techs are making two trips for one job. That's your margin evaporating in drive time.</p>`
   },
   cashflow: {
-    title: 'Your Binding Constraint: Cash Flow',
-    body: `<p>You do the work but don't collect efficiently. Invoices go out late, payments are slow, write-offs accumulate. You're financing your customers' projects with your own cash.</p>
-<div class="insight"><p><strong>What this costs you:</strong> At 60 days DSO on $3M revenue, you have ~$81,000 locked up in receivables that should be working capital. Every 10-day DSO reduction frees ~$27,000 per $1M in revenue.</p></div>
-<p><strong>What to fix first:</strong> Electronic invoicing with automated reminders. Paper invoicing adds 2–4 weeks to your collection cycle for no reason. Electronic invoicing alone cuts DSO by 6–10 days. Automated payment reminders cut another 12–18 days.</p>
+    title:'Your Binding Constraint: Cash Flow',
+    body:`<p>You do the work but don't collect efficiently. Invoices go out late, payments are slow, write-offs accumulate. You're financing your customers' projects with your own cash.</p>
+<div class="cost-box"><strong>What this costs you:</strong> At 60 days DSO on $3M revenue, you have ~$81,000 locked up in receivables that should be working capital. Every 10-day DSO reduction frees ~$27,000 per $1M in revenue.</div>
+<div class="fix-box"><strong>What to fix first:</strong> Electronic invoicing with automated reminders. Paper invoicing adds 2–4 weeks to your collection cycle for no reason. Electronic invoicing alone cuts DSO by 6–10 days. Automated payment reminders cut another 12–18 days.</div>
 <p><strong>Quick win:</strong> Switch to electronic invoicing this week. If you're on QuickBooks, it's already built in. If you're mailing paper invoices, you're paying postage to delay your own payment.</p>`
   },
   retention: {
-    title: 'Your Binding Constraint: Retention',
-    body: `<p>Customers don't come back. You're running on a treadmill — constantly refilling the top of the funnel because customers leave out the bottom. 52% of non-returns are communication failures, not quality failures. Customers simply forgot your name or found a competitor online.</p>
-<div class="insight"><p><strong>What this costs you:</strong> Acquiring a new customer costs 5–7× more than retaining an existing one. A customer on a maintenance plan has 2.3× higher lifetime value. If 30% of your customers were on a plan, your revenue would compound instead of resetting every year.</p></div>
-<p><strong>What to fix first:</strong> Launch a maintenance plan. This is a business decision, not a technology decision. You can launch one this month. Plan members retain at 74–89% vs 29–42% without. Even a simple annual tune-up + priority scheduling plan works.</p>
+    title:'Your Binding Constraint: Retention',
+    body:`<p>Customers don't come back. You're running on a treadmill — constantly refilling the top of the funnel because customers leave out the bottom. 52% of non-returns are communication failures, not quality failures. Customers simply forgot your name or found a competitor online.</p>
+<div class="cost-box"><strong>What this costs you:</strong> Acquiring a new customer costs 5–7× more than retaining an existing one. A customer on a maintenance plan has 2.3× higher lifetime value. If 30% of your customers were on a plan, your revenue would compound instead of resetting every year.</div>
+<div class="fix-box"><strong>What to fix first:</strong> Launch a maintenance plan. This is a business decision, not a technology decision. You can launch one this month. Plan members retain at 74–89% vs 29–42% without. Even a simple annual tune-up + priority scheduling plan works.</div>
 <p><strong>Quick win:</strong> Send a "We haven't seen you in a while" email to every customer who hasn't called in 6+ months. Include a seasonal offer. This alone typically recovers 8–12% of lapsed customers.</p>`
   },
   support: {
-    title: 'Your Binding Constraint: Support',
-    body: `<p>Customer issues pile up with no system. The owner is the bottleneck for every complaint. At $1–3M revenue this may not be your priority — but at $3M+, unresolved support issues start costing you repeat business and referrals.</p>
-<div class="insight"><p><strong>What this costs you:</strong> 87% of consumers expect a review response within 2 weeks. 42% won't use a business that never replies to reviews. Every unanswered complaint is a public signal to prospects that you don't care.</p></div>
-<p><strong>What to fix first:</strong> Implement a ticket system. Even a shared Google Sheet with status columns is better than "the owner handles everything." The goal: not every issue goes to the owner. Tier 1: office staff. Tier 2: lead tech/manager. Tier 3: owner (only for escalations).</p>
+    title:'Your Binding Constraint: Support',
+    body:`<p>Customer issues pile up with no system. The owner is the bottleneck for every complaint. At $1–3M revenue this may not be your priority — but at $3M+, unresolved support issues start costing you repeat business and referrals.</p>
+<div class="cost-box"><strong>What this costs you:</strong> 87% of consumers expect a review response within 2 weeks. 42% won't use a business that never replies to reviews. Every unanswered complaint is a public signal to prospects that you don't care.</div>
+<div class="fix-box"><strong>What to fix first:</strong> Implement a ticket system. Even a shared Google Sheet with status columns is better than "the owner handles everything." The goal: not every issue goes to the owner. Tier 1: office staff. Tier 2: lead tech/manager. Tier 3: owner (only for escalations).</div>
 <p><strong>Quick win:</strong> Respond to every Google review from the last 90 days — positive and negative. Thank the positive reviewers by name. For negative reviews, apologize, explain what happened, and offer to make it right offline. This alone improves your star rating and shows prospects you're engaged.</p>`
   }
 };
 
 // ── State ──
-let currentVector = 0;
-let currentQuestion = 0;
+let cv = 0, cq = 0;
 let answers = vectors.map(v => v.questions.map(() => null));
 let scores = vectors.map(() => 0);
 
 // ── Theme ──
 function toggleTheme() {
-  const html = document.documentElement;
-  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-  html.setAttribute('data-theme', next);
-  localStorage.setItem('theme', next);
-  document.querySelector('.theme-toggle').textContent = next === 'dark' ? '☀️' : '🌙';
+  const h = document.documentElement;
+  const n = h.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  h.setAttribute('data-theme', n);
+  localStorage.setItem('theme', n);
+  document.getElementById('theme-btn').textContent = n === 'dark' ? '☀️' : '🌙';
 }
-(function() {
-  const saved = localStorage.getItem('theme');
-  if (saved) {
-    document.documentElement.setAttribute('data-theme', saved);
-    document.querySelector('.theme-toggle').textContent = saved === 'dark' ? '☀️' : '🌙';
-  }
+(function(){
+  const s = localStorage.getItem('theme');
+  if (s) { document.documentElement.setAttribute('data-theme', s); document.getElementById('theme-btn').textContent = s === 'dark' ? '☀️' : '🌙'; }
 })();
 
-// ── Progress bar ──
+// ── Progress ──
 function renderProgress() {
-  const total = vectors.length * 4;
-  const done = currentVector * 4 + currentQuestion;
+  const total = 24, done = cv * 4 + cq;
   const bar = document.getElementById('progress-bar');
   bar.innerHTML = '';
   for (let i = 0; i < total; i++) {
-    const dot = document.createElement('div');
-    dot.className = 'progress-dot';
-    if (i < done) dot.classList.add('done');
-    if (i === done) dot.classList.add('current');
-    bar.appendChild(dot);
+    const seg = document.createElement('div');
+    seg.className = 'progress-seg';
+    if (i < done) seg.classList.add('done');
+    if (i === done) seg.classList.add('current');
+    bar.appendChild(seg);
   }
+  document.getElementById('progress-text').textContent = `${done + 1} of 24`;
 }
 
 // ── Render question ──
 function renderQuestion() {
-  if (currentVector >= vectors.length) {
-    calculateScores();
-    showEmailGate();
-    return;
-  }
-  const v = vectors[currentVector];
-  const q = v.questions[currentQuestion];
-
-  document.getElementById('vector-label').textContent = `${v.emoji} ${v.label} — ${v.title}`;
-  document.getElementById('question-text').textContent = q.q;
-  document.getElementById('benchmark').textContent = q.b;
-  document.getElementById('q-counter').textContent = `Question ${currentVector * 4 + currentQuestion + 1} of 24`;
-
-  const btnYes = document.getElementById('btn-yes');
-  const btnNo = document.getElementById('btn-no');
-  btnYes.className = 'btn';
-  btnNo.className = 'btn';
-
-  const prev = answers[currentVector][currentQuestion];
-  if (prev === true) btnYes.classList.add('selected-yes');
-  if (prev === false) btnNo.classList.add('selected-no');
-
+  if (cv >= vectors.length) { showResults(); return; }
+  const v = vectors[cv], q = v.questions[cq];
+  document.getElementById('section-tag-text').textContent = `${v.icon} ${v.label}`;
+  document.getElementById('section-label').textContent = v.title;
+  document.getElementById('q-num').textContent = `Question ${cv * 4 + cq + 1} of 24`;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-hint').textContent = q.h;
+  const by = document.getElementById('btn-yes'), bn = document.getElementById('btn-no');
+  by.className = 'q-btn yes'; bn.className = 'q-btn no';
+  const prev = answers[cv][cq];
+  if (prev === true) by.classList.add('picked-yes');
+  if (prev === false) bn.classList.add('picked-no');
   renderProgress();
 }
 
 // ── Answer ──
 function answer(val) {
-  answers[currentVector][currentQuestion] = val;
-  currentQuestion++;
-  if (currentQuestion >= 4) {
-    currentQuestion = 0;
-    currentVector++;
-  }
+  answers[cv][cq] = val;
+  cq++;
+  if (cq >= 4) { cq = 0; cv++; }
   renderQuestion();
 }
 
-// ── Calculate scores ──
-function calculateScores() {
-  scores = vectors.map((v, i) => {
-    const nos = answers[i].filter(a => a === false).length;
-    return Math.min(nos, 3);
-  });
-}
-
-// ── Email gate ──
-function showEmailGate() {
-  document.getElementById('quiz-container').classList.add('hidden');
-  document.getElementById('email-gate').classList.remove('hidden');
-}
-
-// ── Show results ──
+// ── Results ──
 function showResults() {
-  const name = document.getElementById('firstname').value.trim();
-  const email = document.getElementById('email').value.trim();
-  if (!name || !email) return;
-
-  // Log capture (client-side only — needs Brevo backend)
-  console.log('Lead captured:', { name, email, scores, constraint: getBindingConstraint() });
-
-  document.getElementById('email-gate').classList.add('hidden');
-  document.getElementById('results-container').classList.remove('hidden');
-
+  scores = vectors.map((v, i) => Math.min(answers[i].filter(a => a === false).length, 3));
+  document.getElementById('quiz-view').classList.add('hidden');
+  document.getElementById('results-view').classList.remove('hidden');
   renderResults();
 }
 
-function getBindingConstraint() {
-  let maxScore = -1;
-  let maxIdx = 0;
-  scores.forEach((s, i) => { if (s > maxScore) { maxScore = s; maxIdx = i; } });
-  return vectors[maxIdx].id;
+function getBinding() {
+  let mx = -1, mi = 0;
+  scores.forEach((s, i) => { if (s > mx) { mx = s; mi = i; } });
+  return { idx: mi, id: vectors[mi].id, score: mx };
 }
 
 function renderResults() {
-  const constraint = getBindingConstraint();
-  const diag = diagnoses[constraint];
-  const v = vectors.find(v => v.id === constraint);
+  const b = getBinding(), diag = diagnoses[b.id], v = vectors[b.idx];
+  const badgeCls = b.score >= 3 ? 'critical' : b.score >= 2 ? 'moderate' : 'healthy';
+  const badgeText = b.score >= 3 ? 'Binding Constraint' : b.score >= 2 ? 'Moderate Constraint' : 'Minor Issue';
 
-  document.getElementById('result-vector-label').textContent = `Your Binding Constraint`;
-  document.getElementById('result-title').textContent = diag.title;
+  document.getElementById('result-header').innerHTML = `
+    <div class="badge ${badgeCls}">${badgeText}</div>
+    <h2>${diag.title}</h2>`;
 
-  // Score bars
-  const bar = document.getElementById('score-bar');
-  bar.innerHTML = '';
-  vectors.forEach((v, i) => {
-    const s = scores[i];
-    const cls = s >= 3 ? 'high' : s >= 2 ? 'medium' : 'low';
-    bar.innerHTML += `
-      <div class="score-item">
-        <div class="score-value">${s}/3</div>
-        <div class="score-fill"><div class="score-fill-inner ${cls}" style="width:${(s/3)*100}%"></div></div>
-        <div class="score-label">${v.label}</div>
-      </div>`;
+  // Score grid
+  const grid = document.getElementById('score-grid');
+  grid.innerHTML = '';
+  vectors.forEach((vec, i) => {
+    const s = scores[i], cls = s >= 3 ? 'high' : s >= 2 ? 'med' : 'low';
+    const binding = i === b.idx && s >= 2 ? ' binding' : '';
+    grid.innerHTML += `<div class="score-cell${binding}">
+      <div class="sc-icon">${vec.icon}</div>
+      <div class="sc-name">${vec.label}</div>
+      <div class="sc-bar"><div class="sc-fill ${cls}" style="width:${(s/3)*100}%"></div></div>
+      <div class="sc-val ${cls}">${s}/3</div>
+    </div>`;
   });
 
   // Diagnosis
-  document.getElementById('result-diagnosis').innerHTML = `
-    <h3>${v.emoji} What This Means</h3>
-    ${diag.body}
-  `;
+  document.getElementById('diag-card').innerHTML = `<h3>${v.icon} What This Means</h3>${diag.body}`;
 }
 
 // ── Init ──
