@@ -201,6 +201,28 @@
 
   .hidden { display: none !important; }
 
+  /* Focus visibility */
+  .q-btn:focus-visible, .gate-btn:focus-visible, .lm-btn:focus-visible,
+  input:focus-visible, a:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+
+  /* Button micro-interactions */
+  .q-btn { transition: all 0.15s ease; }
+  .q-btn:active { transform: scale(0.98); }
+  .gate-btn { transition: all 0.2s ease; }
+  .gate-btn:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(196,122,56,0.2); }
+  .gate-btn:active { transform: translateY(0); }
+  .lm-btn { transition: all 0.2s ease; }
+  .lm-btn:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(196,122,56,0.2); }
+  .lm-btn:active { transform: translateY(0); }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    .progress-fill, .sc-fill { transition: none !important; }
+  }
+
   @media (max-width: 500px) {
     .container { padding: 40px 16px 60px; }
     .header h1 { font-size: 1.7rem; }
