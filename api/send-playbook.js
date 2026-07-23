@@ -3,8 +3,8 @@
 
 const SUPABASE_URL = "https://cfrlknbpfzpkwpqodmfr.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_YbLmE87tR1J0EFD2S7ueeA_RTWjKXMD";
-const RESEND_API_KEY = "re_ACneXNcB_AKV8JqaPSkEjTLNHyQME2hUy";
-const FROM_EMAIL = "MAF Deploy <freebies@malwaassetfirm.com>";
+const RESEND_API_KEY = "re_MaEruUPf_72gJvsxffkPv5szVi2CqYwUB";
+const FROM_EMAIL = "MAF Deploy <freebies@freebies.malwaassetfirm.com>";
 
 const playbooks = {
   demand: {
