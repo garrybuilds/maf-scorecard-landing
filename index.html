@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Turnstile invisible widget (G decision Q2, 2026-09-08): the token is
+     verified SERVER-SIDE by /api/send-playbook before any email or insert.
+     Site key is public by design; the secret lives in Vercel env. -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <title>6-Vector Scorecard — Find Your Growth-Blocking Constraint | MAF</title>
 <style>
   :root {
@@ -282,6 +286,9 @@
       <input type="email" id="email" required autocomplete="email" placeholder="you@company.com">
     </div>
     <button class="gate-btn" onclick="submitGate()">See My Results</button>
+    <!-- Turnstile invisible widget — renders nothing visible; token is
+         attached to the submit payload automatically -->
+    <div class="cf-turnstile" data-sitekey="PLACEHOLDER_TURNSTILE_SITE_KEY" data-size="invisible" data-callback="onTurnstileSuccess"></div>
     <p class="gate-note">No spam. Your results and guide arrive instantly.</p>
   </div>
 </div>
@@ -444,7 +451,30 @@ function showGate() {
   document.getElementById('gate-view').classList.remove('hidden');
 }
 
-function submitGate() {
+// ── Turnstile token (G decision Q2) ──
+let turnstileToken = null;
+let turnstileWaiters = [];
+
+// Called by the Turnstile widget when it solves (data-callback)
+function onTurnstileSuccess(token) {
+  turnstileToken = token;
+  const waiters = turnstileWaiters; turnstileWaiters = [];
+  waiters.forEach(fn => fn());
+}
+
+function awaitTurnstile(timeoutMs = 12000) {
+  return new Promise(resolve => {
+    if (turnstileToken) return resolve(turnstileToken);
+    turnstileWaiters.push(() => resolve(turnstileToken));
+    // token may already be solving; also arm a re-execute in case it expired
+    if (window.turnstile) {
+      try { window.turnstile.reset(); } catch (e) {}
+    }
+    setTimeout(() => resolve(turnstileToken), timeoutMs);
+  });
+}
+
+async function submitGate() {
   const name = document.getElementById('firstname').value.trim();
   const email = document.getElementById('email').value.trim();
   if (!name || !email) return;
@@ -456,7 +486,13 @@ function submitGate() {
   document.getElementById('results-view').classList.remove('hidden');
   renderResults();
 
-  // Fire-and-forget: store lead + send playbook
+  // Wait for the Turnstile token (invisible — near-instant, 12s cap)
+  const captchaToken = await awaitTurnstile();
+  if (!captchaToken) {
+    console.log('Turnstile token unavailable — submission blocked server-side anyway');
+  }
+
+  // Fire-and-forget: store lead + send playbook (server verifies Turnstile)
   fetch('/api/send-playbook', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -464,7 +500,8 @@ function submitGate() {
       name: name,
       email: email,
       constraint_id: b.id,
-      scores: scores
+      scores: scores,
+      captchaToken: captchaToken || ''
     })
   }).catch(e => console.log('API call failed:', e));
 }
