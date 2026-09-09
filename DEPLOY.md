@@ -17,6 +17,11 @@
 - Domain: `scorecard.malwaassetfirm.com` (or similar)
 
 ## Post-Deploy
-- Add Brevo backend for form submission (Vercel serverless function or Supabase Edge Function)
-- Add Cal.com booking link
-- Add PDF download link
+<!-- Checklist refreshed 2026-09-09 (audit M1): the previous items told the
+     operator to build what the shipped code already implements. -->
+- [x] Form backend — live: Turnstile verify + Supabase Edge Function insert +
+      Resend playbook email (api/send-playbook.js; env: RESEND_API_KEY,
+      TURNSTILE_SECRET, LEAD_CAPTURE_SERVICE_SECRET)
+- [ ] Cal.com booking link (still open — wire into the thank-you step)
+- [ ] PDF download link (still open — attach hosted playbook PDF or
+      link it from the email template)

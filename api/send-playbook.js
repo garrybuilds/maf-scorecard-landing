@@ -16,7 +16,11 @@ const SERVICE_SECRET = process.env.LEAD_CAPTURE_SERVICE_SECRET;
 const EDGE_FUNCTION_URL =
   "https://cfrlknbpfzpkwpqodmfr.supabase.co/functions/v1/lead-capture-submit";
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_EMAIL = "MAF Deploy <freebies@freebies.malwaassetfirm.com>";
+// FROM_EMAIL: subdomain typo repaired (audit M1) — was
+// freebies@freebies.malwaassetfirm.com (doubled subdomain, nonexistent
+// domain → SPF/DKIM mismatch, spoof-flag or rejection on every send).
+// Domain must match the Resend-verified malwaassetfirm.com.
+const FROM_EMAIL = "MAF Deploy <freebies@malwaassetfirm.com>";
 
 async function verifyTurnstile(token, ip) {
   // Server-side siteverify — fail-closed. No valid token = no email, no insert.
