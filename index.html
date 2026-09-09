@@ -286,10 +286,14 @@
       <input type="email" id="email" required autocomplete="email" placeholder="you@company.com">
     </div>
     <button class="gate-btn" onclick="submitGate()">See My Results</button>
-    <!-- Turnstile invisible widget — renders nothing visible; token is
-         attached to the submit payload automatically -->
-    <div class="cf-turnstile" data-sitekey="PLACEHOLDER_TURNSTILE_SITE_KEY" data-size="invisible" data-callback="onTurnstileSuccess"></div>
+    <!-- Turnstile invisible widget — injected at runtime by initTurnstile()
+         ONLY when /api/turnstile-config returns a real site key. No build
+         step interpolates static HTML, so the widget markup lives here
+         empty-handed and is populated from the config endpoint; the token
+         is verified SERVER-SIDE by /api/send-playbook (fail-closed). -->
+    <div id="turnstile-slot"></div>
     <p class="gate-note">No spam. Your results and guide arrive instantly.</p>
+    <p id="submit-note" class="gate-note hidden" style="color:#b3392b;"></p>
   </div>
 </div>
 
@@ -451,26 +455,56 @@ function showGate() {
   document.getElementById('gate-view').classList.remove('hidden');
 }
 
-// ── Turnstile token (G decision Q2) ──
+// ── Turnstile (G decision Q2; runtime config — review fix 2026-09-09) ──
+// The widget is injected ONLY when /api/turnstile-config returns a real site
+// key (TURNSTILE_SITE_KEY env on Vercel). The site key is public by design;
+// the SECRET never leaves the server. With no site key configured there is
+// no widget, no api.js load, and submissions fail closed server-side —
+// never a placeholder key in static HTML.
+let turnstileSiteKey = null;
 let turnstileToken = null;
-let turnstileWaiters = [];
 
 // Called by the Turnstile widget when it solves (data-callback)
 function onTurnstileSuccess(token) {
   turnstileToken = token;
-  const waiters = turnstileWaiters; turnstileWaiters = [];
-  waiters.forEach(fn => fn());
 }
+
+async function initTurnstile() {
+  try {
+    const res = await fetch('/api/turnstile-config');
+    if (!res.ok) return;
+    const { sitekey } = await res.json();
+    if (!sitekey) return; // not configured — no widget; server stays fail-closed
+    turnstileSiteKey = sitekey;
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+    const slot = document.getElementById('turnstile-slot');
+    const widget = document.createElement('div');
+    widget.className = 'cf-turnstile';
+    widget.setAttribute('data-sitekey', sitekey);
+    widget.setAttribute('data-size', 'invisible');
+    widget.setAttribute('data-callback', 'onTurnstileSuccess');
+    slot.appendChild(widget);
+  } catch (e) {
+    console.log('turnstile-config unreachable:', e);
+  }
+}
+initTurnstile();
 
 function awaitTurnstile(timeoutMs = 12000) {
   return new Promise(resolve => {
+    if (!turnstileSiteKey) return resolve(null); // no widget — honest null
     if (turnstileToken) return resolve(turnstileToken);
-    turnstileWaiters.push(() => resolve(turnstileToken));
-    // token may already be solving; also arm a re-execute in case it expired
-    if (window.turnstile) {
-      try { window.turnstile.reset(); } catch (e) {}
-    }
-    setTimeout(() => resolve(turnstileToken), timeoutMs);
+    const timer = setTimeout(() => resolve(turnstileToken), timeoutMs);
+    // Poll for the solve; single-use tokens are cleared after each submit,
+    // so there is no stale fast path and reset() happens BEFORE awaiting.
+    const iv = setInterval(() => {
+      if (turnstileToken) { clearInterval(iv); clearTimeout(timer); resolve(turnstileToken); }
+    }, 100);
+    setTimeout(() => clearInterval(iv), timeoutMs);
   });
 }
 
@@ -492,7 +526,15 @@ async function submitGate() {
     console.log('Turnstile token unavailable — submission blocked server-side anyway');
   }
 
-  // Fire-and-forget: store lead + send playbook (server verifies Turnstile)
+  // Single-use tokens: clear BEFORE the request so a second submit must
+  // re-solve; reset the widget for the next attempt.
+  turnstileToken = null;
+  if (turnstileSiteKey && window.turnstile) {
+    try { window.turnstile.reset(); } catch (e) {}
+  }
+
+  // Fire-and-forget for the UI; the response IS inspected — a server
+  // rejection surfaces an inline retry note instead of silent success.
   fetch('/api/send-playbook', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -503,6 +545,14 @@ async function submitGate() {
       scores: scores,
       captchaToken: captchaToken || ''
     })
+  }).then(r => r.json().catch(() => ({}))).then(body => {
+    if (body && body.success === true) return;
+    const note = document.getElementById('submit-note');
+    if (note) {
+      note.textContent = 'Your results are showing, but the guide email could not be sent (' +
+        ((body && body.error) || 'captcha verification failed') + '). Email hello@malwaassetfirm.com and we will send it manually.';
+      note.classList.remove('hidden');
+    }
   }).catch(e => console.log('API call failed:', e));
 }
 

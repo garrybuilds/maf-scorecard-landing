@@ -26,7 +26,40 @@ No test suite exists in this repo (static landing + one serverless function); `n
 
 **Redeploy the Vercel function** (or it picks up on next deploy). The FROM_EMAIL change only takes effect when `api/send-playbook.js` redeploys — until then the live function still sends from the doubled subdomain. Consider a Resend-domain check in the dashboard that `malwaassetfirm.com` is verified (it must be, given other emails work).
 
-## Files
+## Files (full scope of this branch — corrected 2026-09-09 review round)
 
-- `api/send-playbook.js` (FROM_EMAIL + comment)
-- `DEPLOY.md` (checklist refresh)
+- `api/send-playbook.js` (FROM_EMAIL repair + Turnstile server-side siteverify,
+  fail-closed; lead insert relayed via lead-capture-submit Edge Function,
+  fail-open for the email; Resend send)
+- `api/turnstile-config.js` (NEW, review round — serves the public site key at
+  runtime from TURNSTILE_SITE_KEY env; {sitekey: null} when unset)
+- `index.html` (Turnstile widget injected at runtime via /api/turnstile-config —
+  NO placeholder sitekey ships; single-use token handling with reset-before-await
+  and clear-after-submit; server rejection surfaces an inline retry note)
+- `DEPLOY.md` (checklist refresh, corrected to state the TURNSTILE_SITE_KEY
+  activation dependency)
+
+## Review round — 2026-09-09 (by Diwan Todar Mal / MAF agent)
+
+Independent reviewer verdict was `passed: false` on the placeholder sitekey
+(literal PLACEHOLDER_TURNSTILE_SITE_KEY in static HTML — every submission would
+fail server-side: no email, no lead stored; flagged nowhere, while DEPLOY.md
+marked the form backend "[x] live"). Fixes on this branch:
+
+- Runtime sitekey config: /api/turnstile-config serves the public key from
+  Vercel env; the widget injects only when configured. Placeholder eliminated.
+- Token race fixes: single-use tokens cleared after each submit, widget reset
+  BEFORE awaiting, no stale fast path, no reset-inside-promise.
+- Server rejection now surfaces: the fetch response is inspected; a rejected
+  submission shows an inline note (manual-contact fallback) instead of
+  silent success.
+- DEPLOY.md "[x] live" corrected to the true conditional (activation requires
+  TURNSTILE_SITE_KEY); evidence Files section completed to the branch's full
+  scope.
+
+Verification (this round): node --check on both API functions and the inline
+script — OK; CI's DOCTYPE gate — OK; grep: zero PLACEHOLDER_TURNSTILE refs.
+
+Activation for G (one step): set TURNSTILE_SITE_KEY (public) in Vercel env
+next to TURNSTILE_SECRET — the widget goes live on next deploy; unset, the
+server gate fails closed by design.
