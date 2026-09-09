@@ -17,6 +17,16 @@
 - Domain: `scorecard.malwaassetfirm.com` (or similar)
 
 ## Post-Deploy
-- Add Brevo backend for form submission (Vercel serverless function or Supabase Edge Function)
-- Add Cal.com booking link
-- Add PDF download link
+<!-- Checklist refreshed 2026-09-09 (audit M1): the previous items told the
+     operator to build what the shipped code already implements. -->
+- [x] Form backend — code shipped: Turnstile verify (fail-closed server gate) +
+      Supabase Edge Function insert + Resend playbook email
+      (api/send-playbook.js + api/turnstile-config.js; env: RESEND_API_KEY,
+      TURNSTILE_SECRET, LEAD_CAPTURE_SERVICE_SECRET, TURNSTILE_SITE_KEY).
+      NOTE: the Turnstile widget activates ONLY when TURNSTILE_SITE_KEY is set
+      in Vercel env — until then the server gate fails closed (no email, no
+      lead stored) by design. Site key is public-by-design; obtain it from the
+      Cloudflare Turnstile dashboard alongside TURNSTILE_SECRET.
+- [ ] Cal.com booking link (still open — wire into the thank-you step)
+- [ ] PDF download link (still open — attach hosted playbook PDF or
+      link it from the email template)

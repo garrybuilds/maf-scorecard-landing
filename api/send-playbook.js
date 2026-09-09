@@ -1,10 +1,43 @@
 // Vercel serverless function: /api/send-playbook
-// Stores lead in Supabase, sends playbook via Resend
+// Trusted relay for lead-capture-submit (G decision B, 2026-09-08):
+//   1. Verify Turnstile server-side (invisible widget on the quiz)
+//   2. Insert the lead via the lead-capture-submit Edge Function
+//      (service-auth secret) — NOT direct PostgREST (RLS-rejected)
+//   3. Send the playbook via Resend (fail-open: the email sends even if
+//      the insert hiccups — lead experience first)
+//
+// Env required (Vercel): RESEND_API_KEY, TURNSTILE_SECRET,
+//                       LEAD_CAPTURE_SERVICE_SECRET, TURNSTILE_SITE_KEY
+//                       (TURNSTILE_SITE_KEY is used by the browser widget,
+//                       listed here for documentation)
 
-const SUPABASE_URL = "https://cfrlknbpfzpkwpqodmfr.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_YbLmE87tR1J0EFD2S7ueeA_RTWjKXMD";
+const TURNSTILE_SECRET = process.env.TURNSTILE_SECRET;
+const SERVICE_SECRET = process.env.LEAD_CAPTURE_SERVICE_SECRET;
+const EDGE_FUNCTION_URL =
+  "https://cfrlknbpfzpkwpqodmfr.supabase.co/functions/v1/lead-capture-submit";
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_EMAIL = "MAF Deploy <freebies@freebies.malwaassetfirm.com>";
+// FROM_EMAIL: subdomain typo repaired (audit M1) — was
+// freebies@freebies.malwaassetfirm.com (doubled subdomain, nonexistent
+// domain → SPF/DKIM mismatch, spoof-flag or rejection on every send).
+// Domain must match the Resend-verified malwaassetfirm.com.
+const FROM_EMAIL = "MAF Deploy <freebies@malwaassetfirm.com>";
+
+async function verifyTurnstile(token, ip) {
+  // Server-side siteverify — fail-closed. No valid token = no email, no insert.
+  const body = new URLSearchParams({
+    secret: TURNSTILE_SECRET,
+    response: token,
+  });
+  if (ip) body.set("remoteip", ip);
+  const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+  if (!res.ok) return false;
+  const result = await res.json();
+  return result?.success === true;
+}
 
 const playbooks = {
   demand: {
@@ -181,26 +214,48 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { name, email, constraint_id, scores } = req.body;
+    const { name, email, constraint_id, scores, captchaToken } = req.body;
 
     if (!name || !email || !constraint_id) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // 1. Store in Supabase
-    try {
-      await fetch(`${SUPABASE_URL}/rest/v1/lead_captures`, {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
-        body: JSON.stringify({ name, email, constraint_id, scores })
-      });
-    } catch (e) {
-      console.error('Supabase insert failed:', e);
+    // 0. Turnstile gate — fail-closed. An unauthenticated caller without
+    //    a valid captcha token gets nothing: no email, no insert.
+    if (!TURNSTILE_SECRET) {
+      console.error('TURNSTILE_SECRET not configured');
+      return res.status(500).json({ error: 'Server not configured' });
+    }
+    if (typeof captchaToken !== 'string' || captchaToken.length < 10) {
+      return res.status(400).json({ error: 'Captcha verification required' });
+    }
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || null;
+    const captchaOk = await verifyTurnstile(captchaToken, ip);
+    if (!captchaOk) {
+      return res.status(403).json({ error: 'Captcha verification failed' });
+    }
+
+    // 1. Insert via lead-capture-submit Edge Function (service-auth).
+    //    Fail-open for the lead experience: the playbook email still sends
+    //    if this hiccups — but the error is logged on the Edge side.
+    if (SERVICE_SECRET) {
+      try {
+        const efRes = await fetch(EDGE_FUNCTION_URL, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${SERVICE_SECRET}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, email, constraint_id, scores }),
+        });
+        if (!efRes.ok) {
+          console.error('Edge function insert failed:', efRes.status);
+        }
+      } catch (e) {
+        console.error('Edge function unreachable:', e.message);
+      }
+    } else {
+      console.error('LEAD_CAPTURE_SERVICE_SECRET not configured — lead NOT stored');
     }
 
     // 2. Send playbook via Resend
