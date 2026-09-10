@@ -14,7 +14,7 @@
 const TURNSTILE_SECRET = process.env.TURNSTILE_SECRET;
 const SERVICE_SECRET = process.env.LEAD_CAPTURE_SERVICE_SECRET;
 const EDGE_FUNCTION_URL =
-  "https://cfrlknbpfzpkwpqodmfr.supabase.co/functions/v1/lead-capture-submit";
+  "https://cwqsvhdgmraslrsajuax.supabase.co/functions/v1/lead-capture-submit";
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 // FROM_EMAIL: subdomain typo repaired (audit M1) — was
 // freebies@freebies.malwaassetfirm.com (doubled subdomain, nonexistent
