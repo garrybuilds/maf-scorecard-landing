@@ -293,7 +293,6 @@
          is verified SERVER-SIDE by /api/send-playbook (fail-closed). -->
     <div id="turnstile-slot"></div>
     <p class="gate-note">No spam. Your results and guide arrive instantly.</p>
-    <p id="submit-note" class="gate-note hidden" style="color:#b3392b;"></p>
   </div>
 </div>
 
@@ -557,6 +556,9 @@ async function submitGate() {
     // The old #submit-note was inside gate-view, which this function hides
     // before the fetch fires; every failure note rendered into a hidden
     // view and was never seen (two live submissions failed silently).
+    // Review folds: operator-jargon states map to user-facing wording;
+    // a missing insertStatus (stale backend) reads as "not confirmed",
+    // never a definitive failure claim.
     const note = document.getElementById('results-note');
     if (!note) return;
     if (body && body.success === true && body.insertStatus === 'stored') {
@@ -566,10 +568,12 @@ async function submitGate() {
     let msg;
     if (body && body.success === true) {
       // Email sent, but the CRM insert did not land — tell the user so the
-      // lead is not silently lost (they can retry or contact us).
-      msg = 'Your guide email is on its way. Note: we could not save your quiz result to our system' +
-        (body.insertStatus ? ' (' + body.insertStatus + ')' : '') +
-        '. Email hello@malwaassetfirm.com and we will make sure it is saved.';
+      // lead is not silently lost (they can retry or contact us). Wording
+      // covers both a confirmed insert failure and version-skew (stale
+      // backend without insertStatus): "not confirmed" never claims a
+      // definitive failure the relay didn't report (review fold #4).
+      msg = 'Your guide email is on its way. Note: we could not confirm your quiz result was saved to our system. ' +
+        'Email hello@malwaassetfirm.com and we will make sure it is saved.';
     } else {
       msg = 'Your results are showing, but the guide email could not be sent (' +
         ((body && body.error) || 'captcha verification failed') +

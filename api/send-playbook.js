@@ -246,7 +246,9 @@ module.exports = async function handler(req, res) {
     //    can tell the user their results are showing but the guide wasn't
     //    stored. The email still sends when the insert fails — lead
     //    experience preserved, silently-swallowed state eliminated.
-    let insertStatus = 'skipped';
+    //    State set: stored | failed | unconfigured (review fold: 'skipped'
+    //    was unreachable — every branch overwrites the initial value).
+    let insertStatus = null;
     if (SERVICE_SECRET) {
       try {
         const efRes = await fetch(EDGE_FUNCTION_URL, {
@@ -257,11 +259,22 @@ module.exports = async function handler(req, res) {
           },
           body: JSON.stringify({ name, email, constraint_id, scores }),
         });
-        if (!efRes.ok) {
+        // Verify the BODY, not just the status: the edge returns {ok:true}
+        // only after a real insert (its own failures are 4xx/5xx). Trusting
+        // efRes.ok alone could report 'stored' on an in-band failure
+        // (review fold #2 — closes the same silent-loss class this PR fixes).
+        let edgeOk = false;
+        try {
+          const edgeBody = await efRes.json();
+          edgeOk = efRes.ok && edgeBody && edgeBody.ok === true;
+        } catch (_) {
+          edgeOk = false;
+        }
+        if (edgeOk) {
+          insertStatus = 'stored';
+        } else {
           console.error('Edge function insert failed:', efRes.status);
           insertStatus = 'failed';
-        } else {
-          insertStatus = 'stored';
         }
       } catch (e) {
         console.error('Edge function unreachable:', e.message);

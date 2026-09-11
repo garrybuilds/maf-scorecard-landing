@@ -60,3 +60,19 @@ and no playbook email.
 - Inline JS extracted → `node --check` OK; `node --check api/send-playbook.js` OK
 - No conflict markers, no stray whitespace in onclick
 - `#results-note` wired in 4 places (element, 2 JS paths, catch path)
+
+## Independent review (requesting-code-review pipeline) — PASSED, 5 suggestions folded
+
+Verdict: 0 security / 0 logic errors — all three stated intents verifiably
+achieved. Folded (commit 2 on the branch):
+
+1. Unreachable `'skipped'` state removed — state set is now stored/failed/
+   unconfigured (every branch is reachable).
+2. Insert success now verifies the edge's RESPONSE BODY (`{ok:true}`), not
+   just HTTP 200 — closes the in-band-failure hole that could have reported
+   'stored' on a silent edge failure (the same class this PR kills).
+3. Operator jargon no longer renders to users — the note wording is plain
+   ("could not confirm your quiz result was saved").
+4. Version-skew wording: a stale backend without insertStatus reads as
+   "not confirmed", never a definitive failure claim.
+5. Dead `#submit-note` element deleted from the DOM (was unreferenced).
