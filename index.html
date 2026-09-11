@@ -305,6 +305,12 @@
   <div class="result-header" id="result-header"></div>
   <div class="score-grid" id="score-grid"></div>
   <div class="diag-card" id="diag-card"></div>
+  <!-- Honest-outcome note (probe finding 2026-09-10): rendered INSIDE the
+       results view, where the user actually is after submitting. The old
+       #submit-note lived in gate-view — which submitGate() hides BEFORE the
+       fetch fires — so every failure note rendered into a hidden view and
+       no user ever saw one. -->
+  <p id="results-note" class="gate-note hidden" style="color:#b3392b;"></p>
   <div class="lm-card">
     <h3>Get the full breakdown</h3>
     <p>We put together a free guide on fixing this exact constraint — how it shows up across HVAC, plumbing, and electrical, the most common mistakes, and a step-by-step fix.</p>
@@ -546,14 +552,39 @@ async function submitGate() {
       captchaToken: captchaToken || ''
     })
   }).then(r => r.json().catch(() => ({}))).then(body => {
-    if (body && body.success === true) return;
-    const note = document.getElementById('submit-note');
+    // Honest-outcome rendering (probe finding 2026-09-10): the note now
+    // lives in results-view (#results-note) — visible where the user is.
+    // The old #submit-note was inside gate-view, which this function hides
+    // before the fetch fires; every failure note rendered into a hidden
+    // view and was never seen (two live submissions failed silently).
+    const note = document.getElementById('results-note');
+    if (!note) return;
+    if (body && body.success === true && body.insertStatus === 'stored') {
+      note.classList.add('hidden');
+      return;
+    }
+    let msg;
+    if (body && body.success === true) {
+      // Email sent, but the CRM insert did not land — tell the user so the
+      // lead is not silently lost (they can retry or contact us).
+      msg = 'Your guide email is on its way. Note: we could not save your quiz result to our system' +
+        (body.insertStatus ? ' (' + body.insertStatus + ')' : '') +
+        '. Email hello@malwaassetfirm.com and we will make sure it is saved.';
+    } else {
+      msg = 'Your results are showing, but the guide email could not be sent (' +
+        ((body && body.error) || 'captcha verification failed') +
+        '). Email hello@malwaassetfirm.com and we will send it manually.';
+    }
+    note.textContent = msg;
+    note.classList.remove('hidden');
+  }).catch(e => {
+    console.log('API call failed:', e);
+    const note = document.getElementById('results-note');
     if (note) {
-      note.textContent = 'Your results are showing, but the guide email could not be sent (' +
-        ((body && body.error) || 'captcha verification failed') + '). Email hello@malwaassetfirm.com and we will send it manually.';
+      note.textContent = 'Your results are showing, but the guide email could not be sent (network error). Email hello@malwaassetfirm.com and we will send it manually.';
       note.classList.remove('hidden');
     }
-  }).catch(e => console.log('API call failed:', e));
+  });
 }
 
 // ── Results ──
