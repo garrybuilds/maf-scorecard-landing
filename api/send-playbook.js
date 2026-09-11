@@ -16,11 +16,14 @@ const SERVICE_SECRET = process.env.LEAD_CAPTURE_SERVICE_SECRET;
 const EDGE_FUNCTION_URL =
   "https://cwqsvhdgmraslrsajuax.supabase.co/functions/v1/lead-capture-submit";
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-// FROM_EMAIL: subdomain typo repaired (audit M1) — was
-// freebies@freebies.malwaassetfirm.com (doubled subdomain, nonexistent
-// domain → SPF/DKIM mismatch, spoof-flag or rejection on every send).
-// Domain must match the Resend-verified malwaassetfirm.com.
-const FROM_EMAIL = "MAF Deploy <freebies@malwaassetfirm.com>";
+// FROM_EMAIL: the Resend-verified domain is freebies.malwaassetfirm.com
+// (verified 2026-07-23 — the ONLY verified domain on the account). The 9/9
+// "doubled-subdomain repair" was a misdiagnosis: freebies@freebies.
+// malwaassetfirm.com was the correct, working address (the 2026-09-07 probe
+// send succeeded with exactly that from), and moving it to the unverified
+// apex made Resend 403 every send ("malwaassetfirm.com is not verified").
+// Probe-proven 2026-09-10: subdomain from = 200, apex from = 403.
+const FROM_EMAIL = "MAF Deploy <freebies@freebies.malwaassetfirm.com>";
 
 async function verifyTurnstile(token, ip) {
   // Server-side siteverify — fail-closed. No valid token = no email, no insert.
@@ -236,8 +239,16 @@ module.exports = async function handler(req, res) {
     }
 
     // 1. Insert via lead-capture-submit Edge Function (service-auth).
-    //    Fail-open for the lead experience: the playbook email still sends
-    //    if this hiccups — but the error is logged on the Edge side.
+    //    HONEST-STATUS (probe finding 2026-09-10): the old fail-open design
+    //    logged insert failures to the server console only — the user saw
+    //    "success" either way, and two live submissions silently produced
+    //    no CRM row. The insert outcome now rides the response so the page
+    //    can tell the user their results are showing but the guide wasn't
+    //    stored. The email still sends when the insert fails — lead
+    //    experience preserved, silently-swallowed state eliminated.
+    //    State set: stored | failed | unconfigured (review fold: 'skipped'
+    //    was unreachable — every branch overwrites the initial value).
+    let insertStatus = null;
     if (SERVICE_SECRET) {
       try {
         const efRes = await fetch(EDGE_FUNCTION_URL, {
@@ -248,14 +259,33 @@ module.exports = async function handler(req, res) {
           },
           body: JSON.stringify({ name, email, constraint_id, scores }),
         });
-        if (!efRes.ok) {
+        // Verify the BODY, not just the status: the edge returns {ok:true}
+        // only after a real insert (its own failures are 4xx/5xx). Trusting
+        // efRes.ok alone could report 'stored' on an in-band failure
+        // (review fold #2 — closes the same silent-loss class this PR fixes).
+        let edgeOk = false;
+        try {
+          const edgeBody = await efRes.json();
+          edgeOk = efRes.ok && edgeBody && edgeBody.ok === true;
+        } catch (_) {
+          edgeOk = false;
+        }
+        if (edgeOk) {
+          insertStatus = 'stored';
+        } else {
           console.error('Edge function insert failed:', efRes.status);
+          insertStatus = 'failed';
         }
       } catch (e) {
         console.error('Edge function unreachable:', e.message);
+        insertStatus = 'failed';
       }
     } else {
+      // Surface this to the operator loudly — a misconfigured env var means
+      // every lead is lost. Still returns 200 with insertStatus so the
+      // email leg (the user's immediate ask) is not held hostage.
       console.error('LEAD_CAPTURE_SERVICE_SECRET not configured — lead NOT stored');
+      insertStatus = 'unconfigured';
     }
 
     // 2. Send playbook via Resend
@@ -282,7 +312,7 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    return res.status(200).json({ success: true });
+    return res.status(200).json({ success: true, insertStatus });
   } catch (err) {
     console.error('Handler error:', err);
     return res.status(500).json({ error: 'Internal server error' });
