@@ -27,6 +27,8 @@
       in Vercel env — until then the server gate fails closed (no email, no
       lead stored) by design. Site key is public-by-design; obtain it from the
       Cloudflare Turnstile dashboard alongside TURNSTILE_SECRET.
-- [ ] Cal.com booking link (still open — wire into the thank-you step)
-- [ ] PDF download link (still open — attach hosted playbook PDF or
-      link it from the email template)
+- [x] Cal.com booking link (already live — verified 2026-09-12 in the results view
+      of the deployed page: cal.com/malwa-asset-firm/growth-blocker-analysis)
+- [x] PDF download link (closed 2026-09-12): six constraint playbooks generated as
+      static PDFs from the email HTML (WeasyPrint), served at /playbooks/, linked
+      from the results playbook card (`Download this playbook as a PDF`).
