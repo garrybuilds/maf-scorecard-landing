@@ -703,6 +703,13 @@ function showPlaybook() {
   document.querySelector('.lm-card').classList.add('hidden');
   document.getElementById('playbook-card').classList.remove('hidden');
   document.getElementById('playbook-card').innerHTML = playbooks[b.id];
+  // Hosted PDF download (added 2026-09-12): the same playbook content the
+  // email delivers, as a static /playbooks/<constraint>-playbook.pdf —
+  // closes the DEPLOY.md open item (hosted playbook PDF link).
+  const dl = document.createElement('p');
+  dl.style.cssText = 'margin-top:16px;font-size:0.9rem;color:var(--text2);';
+  dl.innerHTML = '<a href="/playbooks/' + b.id + '-playbook.pdf" download style="color:#c47a38;font-weight:600;">Download this playbook as a PDF</a>';
+  document.getElementById('playbook-card').appendChild(dl);
   document.getElementById('roadmap-card').classList.remove('hidden');
 }
 
